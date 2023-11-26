@@ -3,10 +3,10 @@
     "name": "teamdynamix",
     "description": "SOAR Connector for TeamDynamix Web API\r\n\r\nThis app supports ticket creation, closing and updating.",
     "type": "ticketing",
-    "product_vendor": "TeamDynamix_clone_1701015669525",
+    "product_vendor": "TeamDynamix",
     "logo": "teamdynamix.png",
     "logo_dark": "teamdynamix_dark.png",
-    "product_name": "TDWebAPI_clone_1701015669525",
+    "product_name": "TDWebAPI",
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Splunk",
@@ -18,14 +18,14 @@
     "min_phantom_version": "6.0.0.114895",
     "app_wizard_version": "1.0.0",
     "configuration": {
-        "Root Url": {
+        "base_url": {
             "description": "Base URL for TD Web API",
             "data_type": "string",
             "required": true,
             "value_list": [],
             "default": "",
             "order": 0,
-            "name": "Root Url",
+            "name": "Base Url",
             "id": 0
         },
         "username": {
@@ -89,59 +89,46 @@
                     "order": 1,
                     "name": "accountid"
                 },
-                "statusid": {
+                "status": {
                     "description": "Ticket Status",
                     "data_type": "string",
                     "required": true,
                     "primary": false,
                     "contains": [],
                     "value_list": [
-                        "119880 New",
-                        "119881 Open",
-                        "119882 In Process",
-                        "119883 Resolved",
-                        "119884 Closed",
-                        "119885 Cancelled",
-                        "119886 On Hold",
-                        "130935 Awaiting Client",
-                        "135134 Deferred",
-                        "135135 Planned for Future"
+                        "New",
+                        "Open",
+                        "In Process",
+                        "Resolved",
+                        "Closed",
+                        "Cancelled",
+                        "On Hold",
+                        "Awaiting Client",
+                        "Deferred",
+                        "Planned for Future"
                     ],
-                    "default": "119880",
+                    "default": "New",
                     "order": 2,
-                    "name": "statusid"
+                    "name": "status"
                 },
-                "priorityid": {
+                "priority": {
                     "description": "Ticket Priority",
                     "data_type": "string",
                     "required": true,
                     "primary": false,
                     "contains": [],
                     "value_list": [
-                        "4425 Low 1.0",
-                        "4697 Medium/Low 2.0",
-                        "4426 Medium 3.0",
-                        "4698 Medium/High 4.0",
-                        "4427 High 5.0",
-                        "4428 Emergency 6.0",
-                        "6700 VIP 7.0"
+                        "Low",
+                        "Medium/Low",
+                        "Medium",
+                        "Medium/High",
+                        "High",
+                        "Emergency",
+                        "VIP"
                     ],
-                    "default": "4425",
+                    "default": "Low",
                     "order": 3,
-                    "name": "priorityid"
-                },
-                "requestoruid": {
-                    "description": "Requestor Uid",
-                    "data_type": "string",
-                    "required": true,
-                    "primary": false,
-                    "contains": [
-                        "vault id"
-                    ],
-                    "value_list": [],
-                    "default": "",
-                    "order": 4,
-                    "name": "requestoruid"
+                    "name": "priority"
                 },
                 "title": {
                     "description": "Ticket Title",
@@ -151,7 +138,7 @@
                     "contains": [],
                     "value_list": [],
                     "default": "",
-                    "order": 5,
+                    "order": 4,
                     "name": "title"
                 },
                 "description": {
@@ -162,7 +149,7 @@
                     "contains": [],
                     "value_list": [],
                     "default": "",
-                    "order": 6,
+                    "order": 5,
                     "name": "description"
                 }
             },
@@ -182,40 +169,37 @@
                     "column_order": 1
                 },
                 {
-                    "data_path": "action_result.parameter.statusid",
+                    "data_path": "action_result.parameter.status",
                     "data_type": "string",
                     "contains": [],
-                    "column_name": "statusid",
+                    "column_name": "status",
                     "column_order": 2
                 },
                 {
-                    "data_path": "action_result.parameter.priorityid",
+                    "data_path": "action_result.parameter.priority",
                     "data_type": "string",
                     "contains": [],
-                    "column_name": "priorityid",
+                    "column_name": "priority",
                     "column_order": 3
-                },
-                {
-                    "data_path": "action_result.parameter.requestoruid",
-                    "data_type": "string",
-                    "contains": [
-                        "vault id"
-                    ],
-                    "column_name": "requestoruid",
-                    "column_order": 4
                 },
                 {
                     "data_path": "action_result.parameter.title",
                     "data_type": "string",
                     "contains": [],
                     "column_name": "title",
-                    "column_order": 5
+                    "column_order": 4
                 },
                 {
                     "data_path": "action_result.parameter.description",
                     "data_type": "string",
                     "contains": [],
                     "column_name": "description",
+                    "column_order": 5
+                },
+                {
+                    "data_path": "action_result.data.0.ID",
+                    "data_type": "string",
+                    "column_name": "TicketID",
                     "column_order": 6
                 },
                 {

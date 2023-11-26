@@ -13,20 +13,18 @@ from phantom.base_connector import BaseConnector
 from phantom.action_result import ActionResult
 
 # Usage of the consts file is recommended
-# from teamdynamix_consts import *
+from teamdynamix_consts import *
 import requests
 import json
 from bs4 import BeautifulSoup
 
 
 class RetVal(tuple):
-
     def __new__(cls, val1, val2=None):
         return tuple.__new__(RetVal, (val1, val2))
 
 
 class TeamdynamixConnector(BaseConnector):
-
     def __init__(self):
 
         # Call the BaseConnectors init first
@@ -34,11 +32,10 @@ class TeamdynamixConnector(BaseConnector):
 
         self._state = None
 
-        # Variable to hold a base_url in case the app makes REST calls
-        # Do note that the app json defines the asset config, so please
-        # modify this as you deem fit.
         self._base_url = None
-
+        self.username = None
+        self.password = None
+        
     def _process_empty_response(self, response, action_result):
         if response.status_code == 200:
             return RetVal(phantom.APP_SUCCESS, {})
@@ -98,7 +95,7 @@ class TeamdynamixConnector(BaseConnector):
             action_result.add_debug_data({'r_headers': r.headers})
 
         # Process each 'Content-Type' of response separately
-
+        
         # Process a json response
         if 'json' in r.headers.get('Content-Type', ''):
             return self._process_json_response(r, action_result)
@@ -122,20 +119,23 @@ class TeamdynamixConnector(BaseConnector):
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
-    def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
-        # **kwargs can be any additional parameters that requests.request accepts
-
+    def _make_rest_call(self, endpoint, action_result=None, method="get", **kwargs):
         config = self.get_config()
-
+        
+        headers = kwargs.get('headers', {})
+        headers['Authorization'] = f"Bearer {self._login_get_token()}"
+        headers['Content-Type'] = "application/json"
+        
         resp_json = None
 
         try:
             request_func = getattr(requests, method)
         except AttributeError:
-            return RetVal(
-                action_result.set_status(phantom.APP_ERROR, "Invalid method: {0}".format(method)),
-                resp_json
-            )
+            if action_result:
+                return RetVal(
+                    action_result.set_status(phantom.APP_ERROR, "Invalid method: {0}".format(method)),
+                    resp_json
+                )
 
         # Create a URL to connect to
         url = self._base_url + endpoint
@@ -143,47 +143,63 @@ class TeamdynamixConnector(BaseConnector):
         try:
             r = request_func(
                 url,
-                # auth=(username, password),  # basic authentication
                 verify=config.get('verify_server_cert', False),
-                **kwargs
+                **kwargs,
+                headers=headers
             )
         except Exception as e:
-            return RetVal(
-                action_result.set_status(
-                    phantom.APP_ERROR, "Error Connecting to server. Details: {0}".format(str(e))
-                ), resp_json
-            )
+            if action_result:
+                return RetVal(
+                    action_result.set_status(
+                        phantom.APP_ERROR, "Error Connecting to server. Details: {0}".format(str(e))
+                    ), resp_json
+                )
 
         return self._process_response(r, action_result)
 
     def _handle_test_connectivity(self, param):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
-
-        # NOTE: test connectivity does _NOT_ take any parameters
-        # i.e. the param dictionary passed to this handler will be empty.
-        # Also typically it does not add any data into an action_result either.
-        # The status and progress messages are more important.
-
+        
         self.save_progress("Connecting to endpoint")
-        # make rest call
-        ret_val, response = self._make_rest_call(
-            '/endpoint', action_result, params=None, headers=None
-        )
 
+        ret_val = self._login_get_token()
+        
         if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
             self.save_progress("Test Connectivity Failed.")
-            # return action_result.get_status()
+            return action_result.get_status()
 
         # Return success
-        # self.save_progress("Test Connectivity Passed")
-        # return action_result.set_status(phantom.APP_SUCCESS)
+        self.save_progress("Test Connectivity Passed")
+        return action_result.set_status(phantom.APP_SUCCESS)
+       
+        
 
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
+    def _login_get_token(self):
+        data = json.dumps({
+            'username': self.username,
+            'password': self.password
+        })
+        url = self._base_url + '/api/auth/login'
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        
+        response = requests.request("POST", url, headers=headers, data=data)
 
+        if response.status_code == 200:
+            jwt_token = response.text
+            return jwt_token  # Seen as True for test_connectivity 
+        return False
+
+    def _get_requestor_id(self):
+        endpoint = "/api/auth/getuser"
+        ret_val, response = self._make_rest_call(endpoint)
+        if ret_val:
+            requestor_id = response.get('UID', None)
+            return requestor_id
+        return None
+    
     def _handle_create_ticket(self, param):
         # Implement the handler here
         # use self.save_progress(...) to send progress messages back to the platform
@@ -197,41 +213,52 @@ class TeamdynamixConnector(BaseConnector):
         # Required values can be accessed directly
         typeid = param['typeid']
         accountid = param['accountid']
-        statusid = param['statusid']
-        priorityid = param['priorityid']
-        requestoruid = param['requestoruid']  # TODO: Get automatically using an auxiliary method getuser
+        requestoruid = self._get_requestor_id()
         title = param['title']
+        
+        statusid = TICKET_STATUSES.get(param['status'])
+        priorityid = PRIORITIES.get(param['priority'])
 
         # Optional values should use the .get() function
         description = param.get('description', '')
 
-        app_id = ""
+        data = json.dumps({
+            "TypeID": typeid,
+            "AccountID": accountid,
+            "StatusID": statusid,
+            "PriorityID": priorityid,
+            "RequestorUid": requestoruid,
+            "Title": title,
+            "Description": description
+        })
+
+        app_id = APP_ID
+        
         # make rest call
         ret_val, response = self._make_rest_call(
-            f"/api/{app_id}/tickets?applyDefauls=True", action_result, params=None, headers=None
+            f"/api/{app_id}/tickets?applyDefaults=True", action_result, method="post", data=data
         )
 
         if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
-            # return action_result.get_status()
-            pass
+            return action_result.get_status()
+            
 
         # Now post process the data,  uncomment code as you deem fit
-
+        
         # Add the response into the data section
         action_result.add_data(response)
 
         # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
+        summary = action_result.update_summary({})
+        summary['Ticket ID'] = action_result.get_data()[0].get('ID')
+        summary['num_data'] = len(action_result.get_data())
+        
+               
 
         # Return success, no need to set the message, only the status
         # BaseConnector will create a textual message based off of the summary dictionary
-        # return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(phantom.APP_SUCCESS)
 
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_set_status(self, param):
         # Implement the handler here
@@ -313,8 +340,9 @@ class TeamdynamixConnector(BaseConnector):
         # Optional values should use the .get() function
         optional_config_name = config.get('optional_config_name')
         """
-
-        self._base_url = config.get('base_url')
+        self._base_url = config['base_url']
+        self.username = config['username']
+        self.password = config['password']
 
         return phantom.APP_SUCCESS
 
