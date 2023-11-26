@@ -13,7 +13,7 @@ from phantom.base_connector import BaseConnector
 from phantom.action_result import ActionResult
 
 # Usage of the consts file is recommended
-from teamdynamix_consts import *
+# from teamdynamix_consts import *
 import requests
 import json
 from bs4 import BeautifulSoup
@@ -173,8 +173,6 @@ class TeamdynamixConnector(BaseConnector):
         self.save_progress("Test Connectivity Passed")
         return action_result.set_status(phantom.APP_SUCCESS)
        
-        
-
     def _login_get_token(self):
         data = json.dumps({
             'username': self.username,
@@ -200,6 +198,36 @@ class TeamdynamixConnector(BaseConnector):
             return requestor_id
         return None
     
+    # def _get_statusid_by_name(self, param):
+    #     TODO: This would be a helper (and helpful) action.
+    #     Need to be added to the JSON file and to handle_action
+    #     Can also make more of these helpers for priority id, type id, etc
+    
+    #     self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+    #     action_result = self.add_action_result(ActionResult(dict(param)))
+
+    #     # Need correct app id and EXACT name
+    #     appid = param['appid']
+    #     name = param['name']
+
+    #     endpoint = f"/api/{appid}/tickets/statuses"
+    #     ret_val, response = self._make_rest_call(endpoint)
+    #     if phantom.is_fail(ret_val):
+    #         return action_result.get_status()
+        
+    #     statusid = None
+    #     for status in response:
+    #         if status.get('Name') == name:
+    #             statusid = status.get('ID')
+    #             break
+                        
+    #     # Add the response into the data section
+    #     # action_result.add_data(response)
+
+    #     # Add a dictionary that is made up of the most important values from data into the summary
+    #     summary = action_result.update_summary({})
+    #     summary['Ticket ID'] = statusid
+            
     def _handle_create_ticket(self, param):
         # Implement the handler here
         # use self.save_progress(...) to send progress messages back to the platform
@@ -211,13 +239,14 @@ class TeamdynamixConnector(BaseConnector):
         # Access action parameters passed in the 'param' dictionary
 
         # Required values can be accessed directly
+        appid = param['appid']
         typeid = param['typeid']
         accountid = param['accountid']
-        requestoruid = self._get_requestor_id()
+        statusid = param['statusid']
+        priorityid = param['priorityid']
         title = param['title']
         
-        statusid = TICKET_STATUSES.get(param['status'])
-        priorityid = PRIORITIES.get(param['priority'])
+        requestoruid = self._get_requestor_id()
 
         # Optional values should use the .get() function
         description = param.get('description', '')
@@ -231,19 +260,14 @@ class TeamdynamixConnector(BaseConnector):
             "Title": title,
             "Description": description
         })
-
-        app_id = APP_ID
         
         # make rest call
         ret_val, response = self._make_rest_call(
-            f"/api/{app_id}/tickets?applyDefaults=True", action_result, method="post", data=data
+            f"/api/{appid}/tickets?applyDefaults=True", action_result, method="post", data=data
         )
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
-            
-
-        # Now post process the data,  uncomment code as you deem fit
         
         # Add the response into the data section
         action_result.add_data(response)
@@ -252,13 +276,10 @@ class TeamdynamixConnector(BaseConnector):
         summary = action_result.update_summary({})
         summary['Ticket ID'] = action_result.get_data()[0].get('ID')
         summary['num_data'] = len(action_result.get_data())
-        
-               
 
         # Return success, no need to set the message, only the status
         # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
-
 
     def _handle_set_status(self, param):
         # Implement the handler here

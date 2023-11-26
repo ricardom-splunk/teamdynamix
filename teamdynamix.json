@@ -67,6 +67,17 @@
             "type": "generic",
             "read_only": false,
             "parameters": {
+                "appid": {
+                    "description": "App ID",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 0,
+                    "name": "appid"
+                },
                 "typeid": {
                     "description": "Type ID of issue",
                     "data_type": "string",
@@ -75,7 +86,7 @@
                     "contains": [],
                     "value_list": [],
                     "default": "",
-                    "order": 0,
+                    "order": 1,
                     "name": "typeid"
                 },
                 "accountid": {
@@ -86,49 +97,26 @@
                     "contains": [],
                     "value_list": [],
                     "default": "",
-                    "order": 1,
+                    "order": 2,
                     "name": "accountid"
                 },
-                "status": {
+                "statusid": {
                     "description": "Ticket Status",
                     "data_type": "string",
                     "required": true,
                     "primary": false,
                     "contains": [],
-                    "value_list": [
-                        "New",
-                        "Open",
-                        "In Process",
-                        "Resolved",
-                        "Closed",
-                        "Cancelled",
-                        "On Hold",
-                        "Awaiting Client",
-                        "Deferred",
-                        "Planned for Future"
-                    ],
-                    "default": "New",
-                    "order": 2,
-                    "name": "status"
+                    "order": 3,
+                    "name": "statusid"
                 },
-                "priority": {
+                "priorityid": {
                     "description": "Ticket Priority",
                     "data_type": "string",
                     "required": true,
                     "primary": false,
                     "contains": [],
-                    "value_list": [
-                        "Low",
-                        "Medium/Low",
-                        "Medium",
-                        "Medium/High",
-                        "High",
-                        "Emergency",
-                        "VIP"
-                    ],
-                    "default": "Low",
-                    "order": 3,
-                    "name": "priority"
+                    "order": 4,
+                    "name": "priorityid"
                 },
                 "title": {
                     "description": "Ticket Title",
@@ -138,7 +126,7 @@
                     "contains": [],
                     "value_list": [],
                     "default": "",
-                    "order": 4,
+                    "order": 5,
                     "name": "title"
                 },
                 "description": {
@@ -149,64 +137,71 @@
                     "contains": [],
                     "value_list": [],
                     "default": "",
-                    "order": 5,
+                    "order": 6,
                     "name": "description"
                 }
             },
             "output": [
                 {
+                    "data_path": "action_result.parameter.appid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "appid",
+                    "column_order": 0
+                },
+                {
                     "data_path": "action_result.parameter.typeid",
                     "data_type": "string",
                     "contains": [],
                     "column_name": "typeid",
-                    "column_order": 0
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.parameter.accountid",
                     "data_type": "string",
                     "contains": [],
                     "column_name": "accountid",
-                    "column_order": 1
-                },
-                {
-                    "data_path": "action_result.parameter.status",
-                    "data_type": "string",
-                    "contains": [],
-                    "column_name": "status",
                     "column_order": 2
                 },
                 {
-                    "data_path": "action_result.parameter.priority",
+                    "data_path": "action_result.parameter.statusid",
                     "data_type": "string",
                     "contains": [],
-                    "column_name": "priority",
+                    "column_name": "statusid",
                     "column_order": 3
+                },
+                {
+                    "data_path": "action_result.parameter.priorityid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "priorityid",
+                    "column_order": 4
                 },
                 {
                     "data_path": "action_result.parameter.title",
                     "data_type": "string",
                     "contains": [],
                     "column_name": "title",
-                    "column_order": 4
+                    "column_order": 5
                 },
                 {
                     "data_path": "action_result.parameter.description",
                     "data_type": "string",
                     "contains": [],
                     "column_name": "description",
-                    "column_order": 5
+                    "column_order": 6
                 },
                 {
                     "data_path": "action_result.data.0.ID",
                     "data_type": "string",
                     "column_name": "TicketID",
-                    "column_order": 6
+                    "column_order": 7
                 },
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "status",
-                    "column_order": 7
+                    "column_order": 8
                 },
                 {
                     "data_path": "action_result.message",
