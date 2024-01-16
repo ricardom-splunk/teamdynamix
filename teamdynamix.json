@@ -1,0 +1,318 @@
+{
+    "appid": "3f882f1b-c084-4f1b-97c5-3d88fac3d347",
+    "name": "teamdynamix",
+    "description": "SOAR Connector for TeamDynamix Web API\r\n\r\nThis app supports ticket creation, closing and updating.",
+    "type": "ticketing",
+    "product_vendor": "TeamDynamix",
+    "logo": "teamdynamix.png",
+    "logo_dark": "teamdynamix_dark.png",
+    "product_name": "TDWebAPI",
+    "python_version": "3",
+    "product_version_regex": ".*",
+    "publisher": "Splunk",
+    "license": "Copyright (c) Splunk, 2023",
+    "app_version": "1.0.0",
+    "utctime_updated": "2023-11-26T16:23:45.894847Z",
+    "package_name": "phantom_teamdynamix",
+    "main_module": "teamdynamix_connector.py",
+    "min_phantom_version": "6.0.0.114895",
+    "app_wizard_version": "1.0.0",
+    "configuration": {
+        "base_url": {
+            "description": "Base URL for TD Web API",
+            "data_type": "string",
+            "required": true,
+            "value_list": [],
+            "default": "",
+            "order": 0,
+            "name": "Base Url",
+            "id": 0
+        },
+        "username": {
+            "description": "Username",
+            "data_type": "string",
+            "required": true,
+            "value_list": [],
+            "default": "",
+            "order": 1,
+            "name": "username",
+            "id": 1
+        },
+        "password": {
+            "description": "Password",
+            "data_type": "password",
+            "required": true,
+            "order": 2,
+            "name": "password",
+            "id": 2
+        }
+    },
+    "actions": [
+        {
+            "action": "test connectivity",
+            "identifier": "test_connectivity",
+            "description": "Validate the asset configuration for connectivity using supplied configuration",
+            "verbose": "",
+            "type": "test",
+            "read_only": true,
+            "parameters": {},
+            "output": [],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "create ticket",
+            "identifier": "create_ticket",
+            "description": "Create a ticket (issue)",
+            "verbose": "",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "appid": {
+                    "description": "App ID",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 0,
+                    "name": "appid"
+                },
+                "typeid": {
+                    "description": "Type ID of issue",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 1,
+                    "name": "typeid"
+                },
+                "accountid": {
+                    "description": "Account/Department ID",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 2,
+                    "name": "accountid"
+                },
+                "statusid": {
+                    "description": "Ticket Status",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "order": 3,
+                    "name": "statusid"
+                },
+                "priorityid": {
+                    "description": "Ticket Priority",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "order": 4,
+                    "name": "priorityid"
+                },
+                "title": {
+                    "description": "Ticket Title",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 5,
+                    "name": "title"
+                },
+                "description": {
+                    "description": "Description of the issue",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 6,
+                    "name": "description"
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.appid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "appid",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.typeid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "typeid",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.accountid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "accountid",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.statusid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "statusid",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.parameter.priorityid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "priorityid",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.parameter.title",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "title",
+                    "column_order": 5
+                },
+                {
+                    "data_path": "action_result.parameter.description",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "description",
+                    "column_order": 6
+                },
+                {
+                    "data_path": "action_result.data.0.ID",
+                    "data_type": "string",
+                    "column_name": "TicketID",
+                    "column_order": 7
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 8
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "set status",
+            "identifier": "set_status",
+            "description": "Set ticket (issue) status",
+            "verbose": "",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "ticketid": {
+                    "description": "Ticket (Issue) Key",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": true,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 0,
+                    "name": "ticketid"
+                },
+                "newstatusid": {
+                    "description": "New Status",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 1,
+                    "name": "newstatusid"
+                },
+                "comments": {
+                    "description": "Comments",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 2,
+                    "name": "comments"
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.ticketid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "ticketid",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.newstatusid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "newstatusid",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.comments",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "comments",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        }
+    ],
+    "custom_made": true,
+    "version": 1,
+    "appname": "-",
+    "executable": "spawn3",
+    "disabled": false
+}
